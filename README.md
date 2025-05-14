@@ -15,4 +15,17 @@ This project is currently under active development.
 - Full CI/CD pipeline (GitHub Actions)
 - End-to-end testing flow
 
-> Final README with full architecture diagram and setup instructions will follow once the core features are implemented.
+---
+
+### Why this project matters
+
+This project simulates a real-world DevOps scenario where secure, automated backups and observability are critical for cloud infrastructure.  
+It demonstrates key DevOps practices such as:
+
+- Automating cloud workflows with Bash, AWS CLI, and SSM
+- Applying monitoring and alerting with CloudWatch and Slack
+- Building a CI/CD pipeline for Dockerized components
+- Designing systems with least privilege access (IAM policies)
+- Visualizing system status through a custom Flask dashboard
+
+By combining cloud-native tooling, infrastructure automation, and containerization, Cloud Sentinel showcases a practical, production-like DevOps workflow — built from scratch.
