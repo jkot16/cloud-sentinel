@@ -1,0 +1,133 @@
+
+@font-face {
+    font-family: 'Electrolize';
+    src: url('../fonts/Electrolize-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
+body {
+    background-color: #112337;
+    color: #eeeeee;
+    font-family: 'Electrolize', 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+@keyframes breathe {
+    0%, 100% {
+        filter: drop-shadow(0 0 5px #f5ec8b) drop-shadow(0 0 10px #f5ec8b);
+    }
+    50% {
+        filter: drop-shadow(0 0 15px #f5ec8b) drop-shadow(0 0 30px #f5ec8b);
+    }
+}
+
+
+.logo-container {
+    text-align: center;
+    margin-bottom: -30px;
+    z-index: 1;
+}
+.logo-container .main-logo {
+    width: 300px;
+    height: auto;
+    display: inline-block;
+    animation: breathe 3s ease-in-out infinite;
+}
+
+
+.dashboard {
+    margin-top: 40px;
+    background-color: #132644;
+    border: 2px solid #0f1c2e;
+    border-radius: 8px;
+    width: 600px;
+    padding: 1.5rem;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    position: relative;
+}
+
+
+.header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #333;
+    padding-bottom: 0.5rem;
+}
+.header .title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    font-family: 'Electrolize', sans-serif;
+}
+
+.section {
+    margin-top: 1.5rem;
+}
+.section-title {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    color: white;
+    cursor: pointer;
+    user-select: none;
+    font-family: 'Electrolize', sans-serif;
+    padding: 0.5rem 0.75rem;
+    transition: background-color 0.3s ease;
+    border-radius: 12px;
+}
+.section + .section {
+    border-top: 1px solid #333;
+    padding-top: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+
+.section-content {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.4s ease, opacity 0.4s ease;
+}
+.section-content.open {
+    max-height: 500px;
+    opacity: 1;
+}
+
+
+.list {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+.monospace {
+    font-family: 'Courier New', monospace;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+.list li {
+    padding: 0.25rem 0;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.success-glow {
+    color: #00ff88;
+    text-shadow: 0 0 5px rgba(0, 255, 136, 0.6);
+}
+
+.error-glow {
+    color: #ff4444;
+    text-shadow: 0 0 5px rgba(255, 68, 68, 0.6);
+}
+
+.section-title:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+}
+
+

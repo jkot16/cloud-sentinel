@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cloud Sentinel Status</title>
+
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/status.css') }}">
+
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+<body>
+
+
+<div class="logo-container">
+    <img
+            src="{{ url_for('static', filename='img/sentinel-logo.png') }}"
+            alt="Cloud Sentinel Logo"
+            class="main-logo"
+    >
+</div>
+
+
+<div class="dashboard">
+    <div class="header">
+        <span class="title">Cloud Sentinel</span>
+    </div>
+
+    <div class="section">
+        <div class="section-title collapsible">Backup Summary</div>
+        <div class="section-content">
+            <ul class="list monospace">
+                {% for ev in events %}
+                    <li>
+                        [ {{ ev.timestamp }} ]
+                        <span class="{{ 'success-glow' if 'Success' in ev.message else 'error-glow' }}">
+                {{ ev.message }}
+            </span>
+                    </li>
+                {% endfor %}
+            </ul>
+
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title collapsible">Last Files Backed Up</div>
+        <div class="section-content">
+            <ul class="list monospace">
+                {% for f in files %}
+                    <li>– {{ f }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title collapsible">Log Summary</div>
+        <div class="section-content">
+            <ul class="list monospace">
+                <li>– {{ success_count }} successful backups today</li>
+                <li>– {{ failure_count }} failed backup{{ 's' if failure_count != 1 else '' }}</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const collapsibles = document.querySelectorAll(".collapsible");
+        collapsibles.forEach(title => {
+            title.addEventListener("click", function () {
+                const content = this.nextElementSibling;
+                content.classList.toggle("open");
+                this.classList.toggle("active");
+            });
+        });
+    });
+</script>
+</body>
+</html>
