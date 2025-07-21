@@ -7,8 +7,15 @@ BACKUP_DIR="${BACKUP_DIR:-/data}"
 S3_BUCKET="${S3_BUCKET:-your-bucket-name}"
 SLACK_WEBHOOK="${SLACK_WEBHOOK:-}"
 LOG_GROUP="${LOG_GROUP:-/cloud-sentinel/backup}"
-TMP_FILE="/tmp/data_$(date +"%Y-%m-%dT%H-%M-%S").tar.gz"
-LOG_STREAM="$(date +"%Y-%m-%dT%H-%M-%S")"
+LOG_GROUP="${LOG_GROUP#//}"
+LOG_STREAM="${LOG_STREAM:-main-backup-log}"
+ENV_PREFIX="${ENV_PREFIX:-PROD}"
+
+# readable name
+DATE_TAG=$(date +"%d_%m_%Y____%H-%M")
+FILENAME="${ENV_PREFIX}_cloud_backup_${DATE_TAG}.tar.gz"
+TMP_FILE="/tmp/${FILENAME}"
+
 
 # Functions
 send_slack() {
@@ -17,12 +24,36 @@ send_slack() {
 }
 
 log_cloudwatch() {
-  aws logs create-log-stream --log-group-name "$LOG_GROUP" --log-stream-name "$LOG_STREAM" 2>/dev/null || true
-  aws logs put-log-events \
+  local TIMESTAMP=$(date +%s000)
+  local MESSAGE="$1"
+
+  TOKEN=$(aws logs describe-log-streams \
     --log-group-name "$LOG_GROUP" \
-    --log-stream-name "$LOG_STREAM" \
-    --log-events timestamp=$(date +%s000),message="$1"
+    --log-stream-name-prefix "$LOG_STREAM" \
+    --query "logStreams[0].uploadSequenceToken" \
+    --output text 2>/dev/null)
+
+  LOG_ENTRY="[{\"timestamp\":$TIMESTAMP,\"message\":\"$MESSAGE\"}]"
+
+  if [ "$TOKEN" == "None" ] || [ -z "$TOKEN" ]; then
+    aws logs put-log-events \
+      --log-group-name "$LOG_GROUP" \
+      --log-stream-name "$LOG_STREAM" \
+      --log-events "$LOG_ENTRY" \
+      --region eu-central-1
+  else
+    aws logs put-log-events \
+      --log-group-name "$LOG_GROUP" \
+      --log-stream-name "$LOG_STREAM" \
+      --log-events "$LOG_ENTRY" \
+      --sequence-token "$TOKEN" \
+      --region eu-central-1
+  fi
 }
+
+
+
+
 
 # Backup process
 echo "[INFO] Creating archive from $BACKUP_DIR..."
