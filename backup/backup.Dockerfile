@@ -11,7 +11,8 @@ RUN yum install -y \
     yum clean all
 
 # backup script
-COPY ../backup.sh /backup.sh
+COPY backup/backup.sh /backup.sh
+
 RUN chmod +x /backup.sh
 
 # command for backup
