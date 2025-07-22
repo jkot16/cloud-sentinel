@@ -20,7 +20,8 @@ def status():
         response = logs_client.get_log_events(
             logGroupName=LOG_GROUP,
             logStreamName=LOG_STREAM,
-            startFromHead=True
+            startFromHead=False,
+            limit=10
         )
 
         for e in response.get("events", []):
