@@ -24,32 +24,43 @@ send_slack() {
 }
 
 log_cloudwatch() {
+  set -euo pipefail
+
+  echo "[DEBUG] Effective AWS Identity:"
+  aws sts get-caller-identity || echo "[ERROR] Cannot get caller identity"
+
   local TIMESTAMP=$(date +%s000)
   local MESSAGE="$1"
 
+  local TOKEN
   TOKEN=$(aws logs describe-log-streams \
     --log-group-name "$LOG_GROUP" \
-    --log-stream-name-prefix "$LOG_STREAM" \
+    --log-stream-name "$LOG_STREAM" \
+    --region "$AWS_REGION" \
     --query "logStreams[0].uploadSequenceToken" \
-    --output text 2>/dev/null)
+    --output text 2>/dev/null || echo "")
 
-  LOG_ENTRY="[{\"timestamp\":$TIMESTAMP,\"message\":\"$MESSAGE\"}]"
+  echo "[DEBUG] Token: '$TOKEN'"
+  echo "[DEBUG] Message: '$MESSAGE'"
 
-  if [ "$TOKEN" == "None" ] || [ -z "$TOKEN" ]; then
+  if [[ -z "$TOKEN" || "$TOKEN" == "None" || "$TOKEN" == "null" ]]; then
     aws logs put-log-events \
       --log-group-name "$LOG_GROUP" \
       --log-stream-name "$LOG_STREAM" \
-      --log-events "$LOG_ENTRY" \
-      --region eu-central-1
+      --region "$AWS_REGION" \
+      --log-events timestamp=$TIMESTAMP,message="$MESSAGE"
   else
     aws logs put-log-events \
       --log-group-name "$LOG_GROUP" \
       --log-stream-name "$LOG_STREAM" \
-      --log-events "$LOG_ENTRY" \
-      --sequence-token "$TOKEN" \
-      --region eu-central-1
+      --region "$AWS_REGION" \
+      --log-events timestamp=$TIMESTAMP,message="$MESSAGE" \
+      --sequence-token "$TOKEN"
   fi
+
+  echo "[INFO] Log sent to CloudWatch"
 }
+
 
 
 
