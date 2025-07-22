@@ -4,22 +4,18 @@
     <meta charset="UTF-8">
     <title>Cloud Sentinel Status</title>
 
-
     <link rel="stylesheet" href="{{ url_for('static', filename='css/status.css') }}">
-
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
 <body>
 
-
 <div class="logo-container">
     <img
-            src="{{ url_for('static', filename='img/sentinel-logo.png') }}"
-            alt="Cloud Sentinel Logo"
-            class="main-logo"
+        src="{{ url_for('static', filename='img/sentinel-logo.png') }}"
+        alt="Cloud Sentinel Logo"
+        class="main-logo"
     >
 </div>
-
 
 <div class="dashboard">
     <div class="header">
@@ -33,13 +29,16 @@
                 {% for ev in events %}
                     <li>
                         [ {{ ev.timestamp }} ]
-                        <span class="{{ 'success-glow' if 'Success' in ev.message else 'error-glow' }}">
-                {{ ev.message }}
-            </span>
+                        {% if "Backup successful" in ev.message %}
+                            <span class="success-glow">✅ {{ ev.message }}</span>
+                        {% elif "Backup failed" in ev.message %}
+                            <span class="error-glow">❌ {{ ev.message }}</span>
+                        {% else %}
+                            <span class="error-glow">{{ ev.message }}</span>
+                        {% endif %}
                     </li>
                 {% endfor %}
             </ul>
-
         </div>
     </div>
 
@@ -58,13 +57,12 @@
         <div class="section-title collapsible">Log Summary</div>
         <div class="section-content">
             <ul class="list monospace">
-                <li>– {{ success_count }} successful backups today</li>
-                <li>– {{ failure_count }} failed backup{{ 's' if failure_count != 1 else '' }}</li>
+                <li>– <span style="color: #00ff88;">{{ success_count }} successful backup{{ 's' if success_count != 1 else '' }} today ✅</span></li>
+                <li>– <span style="color: #ff5555;">{{ failure_count }} failed backup{{ 's' if failure_count != 1 else '' }} ❌</span></li>
             </ul>
         </div>
     </div>
 </div>
-
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
