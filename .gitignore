@@ -25,3 +25,9 @@ htmlcov/
 build/
 dist/
 *.egg-info/
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+terraform/.terraform/
+.venv/
+*.log
+.terraform.rc
