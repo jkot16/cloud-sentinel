@@ -2,7 +2,7 @@ from flask import Flask, render_template
 import boto3
 from datetime import datetime, timezone
 import os
-
+import pytz
 app = Flask(__name__)
 
 LOG_GROUP = os.getenv("LOG_GROUP", "cloud-sentinel-backup")
@@ -24,8 +24,9 @@ def status():
             limit=10
         )
 
+        local_tz = pytz.timezone("Europe/Warsaw")
         for e in response.get("events", []):
-            timestamp = datetime.fromtimestamp(e["timestamp"] / 1000, tz=timezone.utc)
+            timestamp = datetime.fromtimestamp(e["timestamp"] / 1000, tz=timezone.utc).astimezone(local_tz)
             message = e["message"]
 
             events.append({
@@ -39,7 +40,7 @@ def status():
                 files.append(filename)
 
 
-        today = datetime.now(timezone.utc).date()
+        today = datetime.now(local_tz).date()
 
         success_count = 0
         failure_count = 0
