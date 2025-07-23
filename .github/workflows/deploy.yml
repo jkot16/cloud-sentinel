@@ -32,7 +32,7 @@ jobs:
 
       - name: Build & Push dashboard image
         run: |
-          docker build -t ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:dashboard-latest -f dashboard/dashboard.Dockerfile .
+          docker build --no-cache -t ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:dashboard-latest -f dashboard/dashboard.Dockerfile .
           docker push ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:dashboard-latest
 
   deploy-dashboard:
