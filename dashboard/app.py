@@ -20,6 +20,9 @@ def status():
     failure_count = 0
 
     try:
+        local_tz = pytz.timezone("Europe/Warsaw")
+        today = datetime.now(local_tz).date()
+
         response = logs_client.get_log_events(
             logGroupName=LOG_GROUP,
             logStreamName=LOG_STREAM,
@@ -27,15 +30,13 @@ def status():
             limit=10
         )
 
-        local_tz = pytz.timezone("Europe/Warsaw")
-        today = datetime.now(local_tz).date()
-
         for e in response.get("events", []):
-            dt = datetime.fromtimestamp(e["timestamp"] / 1000, tz=timezone.utc).astimezone(local_tz)
+            utc_time = datetime.fromtimestamp(e["timestamp"] / 1000, tz=timezone.utc)
+            local_time = utc_time.astimezone(local_tz)
             message = e["message"].strip()
 
             events.append({
-                "timestamp": dt.strftime("%Y-%m-%d %H:%M"),
+                "timestamp": local_time.strftime("%Y-%m-%d %H:%M"),
                 "message": message
             })
 
@@ -43,7 +44,7 @@ def status():
                 filename = message.split("Backup successful: ")[-1]
                 files.append(filename)
 
-            if dt.date() == today:
+            if local_time.date() == today:
                 if "Backup successful" in message:
                     success_count += 1
                 elif "Backup failed" in message:
@@ -51,10 +52,6 @@ def status():
 
     except Exception as e:
         print(f"[ERROR] Failed to fetch logs: {e}")
-        events = []
-        files = []
-        success_count = 0
-        failure_count = 0
 
     return render_template(
         "status.html",
