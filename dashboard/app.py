@@ -1,8 +1,7 @@
 from flask import Flask, render_template
 import boto3
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import os
-import pytz
 
 app = Flask(__name__)
 
@@ -20,8 +19,7 @@ def status():
     failure_count = 0
 
     try:
-        local_tz = pytz.timezone("Europe/Warsaw")
-        today = datetime.now(local_tz).date()
+        today = (datetime.utcnow() + timedelta(hours=2)).date()
 
         response = logs_client.get_log_events(
             logGroupName=LOG_GROUP,
@@ -32,7 +30,7 @@ def status():
 
         for e in response.get("events", []):
             utc_time = datetime.fromtimestamp(e["timestamp"] / 1000, tz=timezone.utc)
-            local_time = utc_time.astimezone(local_tz)
+            local_time = utc_time + timedelta(hours=2)
             message = e["message"].strip()
 
             events.append({
