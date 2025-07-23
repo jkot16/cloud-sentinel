@@ -10,6 +10,7 @@ LOG_GROUP="${LOG_GROUP:-/cloud-sentinel/backup}"
 LOG_GROUP="${LOG_GROUP#//}"
 LOG_STREAM="${LOG_STREAM:-main-backup-log}"
 ENV_PREFIX="${ENV_PREFIX:-PROD}"
+AWS_REGION="${AWS_REGION:-eu-central-1}"
 
 # readable name
 DATE_TAG=$(date +"%d_%m_%Y____%H-%M")
