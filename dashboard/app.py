@@ -3,6 +3,7 @@ import boto3
 from datetime import datetime, timezone
 import os
 import pytz
+
 app = Flask(__name__)
 
 LOG_GROUP = os.getenv("LOG_GROUP", "cloud-sentinel-backup")
@@ -15,6 +16,8 @@ logs_client = boto3.client("logs", region_name=REGION)
 def status():
     events = []
     files = []
+    success_count = 0
+    failure_count = 0
 
     try:
         response = logs_client.get_log_events(
@@ -25,34 +28,26 @@ def status():
         )
 
         local_tz = pytz.timezone("Europe/Warsaw")
-        for e in response.get("events", []):
-            timestamp = datetime.fromtimestamp(e["timestamp"] / 1000, tz=timezone.utc).astimezone(local_tz)
-            message = e["message"]
-
-            events.append({
-                "timestamp": timestamp.strftime("%Y-%m-%d %H:%M"),
-                "message": message.strip()
-            })
-
-
-            if "Backup successful" in message and ".tar.gz" in message:
-                filename = message.split("Backup successful: ")[-1].strip()
-                files.append(filename)
-
-
         today = datetime.now(local_tz).date()
 
-        success_count = 0
-        failure_count = 0
+        for e in response.get("events", []):
+            dt = datetime.fromtimestamp(e["timestamp"] / 1000, tz=timezone.utc).astimezone(local_tz)
+            message = e["message"].strip()
 
-        for e in events:
-            event_date = datetime.strptime(e["timestamp"], "%Y-%m-%d %H:%M").date()
-            if event_date == today:
-                if "Backup successful" in e["message"]:
+            events.append({
+                "timestamp": dt.strftime("%Y-%m-%d %H:%M"),
+                "message": message
+            })
+
+            if "Backup successful" in message and ".tar.gz" in message:
+                filename = message.split("Backup successful: ")[-1]
+                files.append(filename)
+
+            if dt.date() == today:
+                if "Backup successful" in message:
                     success_count += 1
-                elif "Backup failed" in e["message"]:
+                elif "Backup failed" in message:
                     failure_count += 1
-
 
     except Exception as e:
         print(f"[ERROR] Failed to fetch logs: {e}")
