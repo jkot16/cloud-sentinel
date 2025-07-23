@@ -22,18 +22,18 @@ jobs:
 
       - name: Login to Amazon ECR
         run: |
-          aws ecr get-login-password --region $AWS_REGION | \
+          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | \
             docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
 
       - name: Build & Push backup image
         run: |
-          docker build -t ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:backup-latest -f backup/backup.Dockerfile .
-          docker push ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:backup-latest
+          docker build -t ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_BACKUP }}:backup-latest -f backup/backup.Dockerfile .
+          docker push ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_BACKUP }}:backup-latest
 
       - name: Build & Push dashboard image
         run: |
-          docker build --no-cache -t ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:dashboard-latest -f dashboard/dashboard.Dockerfile .
-          docker push ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:dashboard-latest
+          docker build --no-cache -t ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_DASHBOARD }}:dashboard-latest -f dashboard/dashboard.Dockerfile .
+          docker push ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_DASHBOARD }}:dashboard-latest
 
   deploy-dashboard:
     name: SSH Deploy Dashboard to EC2
@@ -49,10 +49,10 @@ jobs:
 
       - name: Deploy to EC2
         run: |
-          ssh -o StrictHostKeyChecking=no -i private_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-            docker login -u AWS -p $(aws ecr get-login-password --region ${{ secrets.AWS_REGION }}) ${{ secrets.ECR_REGISTRY }}
-            docker pull ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:dashboard-latest
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << EOF
+            docker login -u AWS -p \$(aws ecr get-login-password --region ${{ secrets.AWS_REGION }}) ${{ secrets.ECR_REGISTRY }}
+            docker pull ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_DASHBOARD }}:dashboard-latest
             docker stop dashboard || true
             docker rm dashboard || true
-            docker run -d --name dashboard -p 80:5000 ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:dashboard-latest
+            docker run -d --name dashboard -p 80:5000 ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_DASHBOARD }}:dashboard-latest
           EOF
