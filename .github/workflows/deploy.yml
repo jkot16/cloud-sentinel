@@ -25,7 +25,8 @@ jobs:
 
       - name: Run Pytest for Dashboard
         run: |
-          pytest dashboard/tests
+           export PYTHONPATH=.
+           pytest dashboard/tests
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
