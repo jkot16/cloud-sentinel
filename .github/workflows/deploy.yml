@@ -13,6 +13,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Python dependencies
+        run: |
+          pip install -r dashboard/requirements.txt
+          pip install pytest requests
+
+      - name: Run Pytest for Dashboard
+        run: |
+          pytest dashboard/tests
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -25,14 +39,32 @@ jobs:
           aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | \
             docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
 
-      - name: Build & Push backup image
+      - name: Build backup image
         run: |
-          docker build -t ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_BACKUP }}:backup-latest -f backup/backup.Dockerfile .
+          docker build -t backup-img -f backup/backup.Dockerfile .
+
+      - name: Scan backup image with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: backup-img
+
+      - name: Build dashboard image
+        run: |
+          docker build -t dashboard-img -f dashboard/dashboard.Dockerfile .
+
+      - name: Scan dashboard image with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: dashboard-img
+
+      - name: Tag & Push backup image
+        run: |
+          docker tag backup-img ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_BACKUP }}:backup-latest
           docker push ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_BACKUP }}:backup-latest
 
-      - name: Build & Push dashboard image
+      - name: Tag & Push dashboard image
         run: |
-          docker build --no-cache -t ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_DASHBOARD }}:dashboard-latest -f dashboard/dashboard.Dockerfile .
+          docker tag dashboard-img ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_DASHBOARD }}:dashboard-latest
           docker push ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_DASHBOARD }}:dashboard-latest
 
   deploy-dashboard:
@@ -56,6 +88,7 @@ jobs:
             docker rm dashboard || true
             docker run -d --name dashboard -p 80:5000 ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_DASHBOARD }}:dashboard-latest
           EOF
+
       - name: Health check after deploy
         run: |
           ssh -o StrictHostKeyChecking=no -i private_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << EOF
@@ -67,4 +100,3 @@ jobs:
             fi
             echo "Health check passed!✅"
           EOF
-
