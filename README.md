@@ -24,7 +24,7 @@
 5. [⚙️ CI/CD Pipeline](#5-cicd-pipeline)  
 6. [🔐 Security Practices](#6-security-practices)  
 7. [💡 Why this project matters](#7-why-this-project-matters)  
-
+8. [🗺️ Roadmap](#8-roadmap)  
 ---
 
 ## 1. Overview
