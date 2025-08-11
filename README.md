@@ -117,7 +117,6 @@ Implemented with **GitHub Actions** (`deploy.yml`):
 - Terraform-managed S3: public access blocked, lifecycle rules enabled  
 - Secrets (Slack webhook, ECR and AWS credentials) managed via GitHub Secrets  
 - Trivy security scan runs in every pipeline  
-- No open public dashboards or unsafe ports  
 
 ---
 
