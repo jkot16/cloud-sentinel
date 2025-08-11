@@ -49,7 +49,9 @@ Designed to demonstrate real-world DevOps patterns: automation, observability, c
 - ⚙️ CI/CD: test, lint, Trivy scan, Docker build, ECR push, EC2 deploy  
 - 🏗️ Infrastructure provisioning with Terraform (S3 + lifecycle rules)
 
+> Slack notifications
 
+![Cloud Sentinel Dashboard](assets/slack.png)
 ---
 
 ## 3. Tech Stack
