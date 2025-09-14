@@ -34,7 +34,6 @@ It features alerting via Slack, logging via CloudWatch, a `/status` dashboard in
 
 Designed to demonstrate real-world DevOps patterns: automation, observability, containerization, secure IAM access, and GitOps-style delivery.
 
-🔗 **Live Demo**: [Cloud Sentinel Status Dashboard](http://52.59.222.52/status)
 ---
 
 ## 2. Features
