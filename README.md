@@ -14,7 +14,6 @@
 > Built to simulate a real-world DevOps challenge: automate, containerize, monitor, and ship.
 
 ---
-
 ## 📚 Table of Contents
 
 1. [🔎 Overview](#1-overview)  
