@@ -10,6 +10,7 @@
 [![AWS](https://img.shields.io/badge/deployed%20on-AWS-232F3E?logo=amazon-aws)](https://aws.amazon.com/)
 
 ![Cloud Sentinel Dashboard](assets/dashboard.png)
+
 > Automated, secure and observable backup pipeline for EC2-to-S3, with alerts, logs, CI/CD and a live dashboard.  
 > Built to simulate a real-world DevOps challenge: automate, containerize, monitor, and ship.
 
